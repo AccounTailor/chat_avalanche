@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+
+    <title>Chat App</title>
+</head>
+
+<body class="bg-light">
+    <div class="container py-5">
+        <h1 class="text-center mb-5">Address Chat</h1>
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-body">
+                        <form id="chatForm">
+                            <div class="form-group">
+                                <label for="nickname">Nickname:</label>
+                                <input type="text" class="form-control" id="nickname" placeholder="Enter your nickname">
+                            </div>
+                            <div class="form-group">
+                                <label for="message">Message:</label>
+                                <input type="text" class="form-control" id="message" placeholder="Enter message">
+                            </div>
+                            <input type="button" id="btnSend" value="submit"><br>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <ul id="chatHistory" class="list-group mt-5">
+        </ul>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io.connect('/');
+
+        $("#btnSend").click(function () {
+            var msg = $("#message").val();
+            var nickName = $("#nickname").val();
+            var sendMsg = `${nickName}:${msg}`;
+
+            var jsonData = {
+                "nickName": nickName,
+                "msg": msg,
+                "etc": "기타데이터"
+            };
+
+            socket.emit("broadcast3", nickName, "샘플데이터", msg);
+
+        });
+
+        socket.on("receiveAll", function (receiveMsg) {
+            console.log("메시지 수신기-데이터", "receiveAll", receiveMsg);
+            $("#chatHistory").append(`<li>${receiveMsg}</li>`);
+        });
+
+        socket.on("receiveData", function (receiveMsg) {
+            console.log("메시지 수신기-데이터", "receiveData", receiveMsg);
+            $("#chatHistory").append(`<li>${receiveMsg}</li>`);
+        });
+
+        socket.on("sampleEvent", function (data1, data2, data3) {
+            console.log("메시지 수신기-데이터", "sampleEvent", data1, data2, data3);
+            var msg = `${data1}님이 <${data3}>란 메시지를 보냈어요.`;
+            $("#chatHistory").append(`<li>${msg}</li>`);
+        });
+
+    </script>
+</body>
+</html>
